@@ -64,6 +64,25 @@
     const counterElement = document.getElementById('auraCounter');
     const auSound = document.getElementById('auSound');
 
+    // Load aura and timestamp from localStorage
+    function loadAura() {
+      const savedAura = localStorage.getItem('aura');
+      const savedTimestamp = localStorage.getItem('auraTimestamp');
+      const currentTime = Date.now();
+
+      if (savedAura && savedTimestamp) {
+        const elapsedSeconds = (currentTime - parseInt(savedTimestamp)) / 1000;
+        aura = parseFloat(savedAura) + elapsedSeconds * incrementPerSecond;
+        lastSoundThreshold = Math.floor(aura / soundThreshold);
+      }
+    }
+
+    // Save aura and timestamp to localStorage
+    function saveAura() {
+      localStorage.setItem('aura', aura);
+      localStorage.setItem('auraTimestamp', Date.now());
+    }
+
     function formatNumber(num) {
       if (num < 1e15) {
         return Math.floor(num).toLocaleString('en-US');
@@ -89,7 +108,14 @@
         playAuSound();
         lastSoundThreshold = currentThreshold;
       }
+
+      // Save aura to localStorage
+      saveAura();
     }
+
+    // Initialize aura on page load
+    loadAura();
+    counterElement.innerHTML = formatNumber(aura);
 
     // Start the counter
     setInterval(updateCounter, 1000 / 60); // Update 60 times per second
